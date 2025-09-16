@@ -58,7 +58,7 @@ function App() {
     newGrid = GridUtils.createRegions(newGrid, 9);
   
   
-    while (attempts < 100 && !uniqueFound) {
+    while (attempts < 5000 && !uniqueFound) {
       attempts++;
       newGrid = GridUtils.createGrid(9);
       newGrid = GridUtils.createRegions(newGrid, 9);
@@ -75,7 +75,6 @@ function App() {
           uniqueFound = true;
           
           console.log(`Unique solution found after ${attempts} attempt(s)!`);
-          console.log("Unique grid generated:", newGrid);
           break;
         }
 
@@ -88,7 +87,7 @@ function App() {
       }
 
       if (!uniqueFound) {
-        console.log(`No unique solution found in 50 attempts.`);
+        console.log(`No unique solution found in ${attempts} attempts.`);
         
       }
 

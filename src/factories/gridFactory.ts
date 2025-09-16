@@ -64,30 +64,82 @@ export const GridUtils = {
         return picked;
     },
 
-    // -------------------
-    // Get empty neighbors of a cell
-    // -------------------
-    pickAdjacentEmptyCells(grid: Grid, coord: Coord): Coord[] {
-        const deltas: Coord[] = [
-            [-1, 0], // up
-            [1, 0],  // down
-            [0, -1], // left
-            [0, 1],  // right
-        ];
 
-        const [row, col] = coord;
-        const empty: Coord[] = [];
+    // -------------------
+    // Create regions and grow them until grid is full
+    // -------------------
+    createRegions(grid: Grid, N: number): Grid {
+        //grid = GridUtils.clearGrid(grid);
+        grid = GridUtils.createGrid(grid.size);
 
-        for (const [dRow, dCol] of deltas) {
-            const r = row + dRow;
-            const c = col + dCol;
-            if (r >= 0 && r < grid.size && c >= 0 && c < grid.size) {
-            const neighbor = grid.cells[r][c];
-            if (!neighbor.ownerId) empty.push([r, c]);
+        // Seed the regions
+        const seeds = GridUtils.pickRandomEmptyCells(grid, N);
+        seeds.forEach((cell, idx) => {
+            const region = createRegion(idx + 1, cell.coords);
+            cell.ownerId = region.id;
+            grid.regions.push(region);
+        });
+
+        // Assign targets (optional weighting)
+        GridUtils.assignRegionTargets(
+            grid.regions,
+            grid.cells.flat().length,
+            "weightedSmall",
+            { min: 7, max: 12, sizes: [{ size: 5, count:5 }, { size: 3, count:1 }] }
+        );
+
+        
+        // Safety: check for impossible assignments
+        const hardTotal = grid.regions
+            .filter(r => r.targetIsHard)
+            .reduce((sum, r) => sum + (r.targetSize ?? 0), 0);
+        const softTotal = grid.regions
+            .filter(r => !r.targetIsHard)
+            .reduce((sum, r) => sum + (r.targetSize ?? 0), 0);
+        const gridTotal = grid.cells.flat().length;
+        if (hardTotal > gridTotal) {
+            // Too many hard targets, treat all as soft
+            grid.regions.forEach(r => r.targetIsHard = false);
+            console.warn("Hard region sizes exceed grid size. All targets set to soft.");
+        }
+
+        // Grow regions until full, with safety break and fallback
+        let iterations = 0;
+        const maxIterations = gridTotal * 10;
+        while (grid.cells.flat().some(c => !c.ownerId)) {
+            const anyGrew = GridUtils.growRegions(grid);
+            iterations++;
+            if (!anyGrew) {
+                // If stuck, relax hard targets and try again
+                const anyHard = grid.regions.some(r => r.targetIsHard);
+                if (anyHard) {
+                    grid.regions.forEach(r => r.targetIsHard = false);
+                    // console.warn("Stuck with unassigned cells. All targets set to soft.");
+                    continue;
+                } else {
+                    throw new Error("No regions can grow further. Stuck with unassigned cells.");
+                }
+            }
+            if (iterations > maxIterations) {
+                // If exceeded max iterations, relax hard targets and try again
+                const anyHard = grid.regions.some(r => r.targetIsHard);
+                if (anyHard) {
+                    grid.regions.forEach(r => r.targetIsHard = false);
+                    // console.warn("Exceeded max iterations. All targets set to soft.");
+                    iterations = 0; // reset counter
+                    continue;
+                } else {
+                    throw new Error("Exceeded max iterations while growing regions.");
+                }
             }
         }
-        return empty;
+
+        // Flag the cells with their border bitmask
+        GridUtils.flagCellBordersBitmask(grid);
+
+        return grid;
     },
+
 
     // -------------------
     // Assign regions with soft targets
@@ -96,48 +148,36 @@ export const GridUtils = {
         regions: Region[],
         totalCells: number,
         mode: "equal" | "randomWeighted" | "weightedSmall",
-        options?: { min?: number; max?: number}
+        options?: { min?: number; max?: number; sizes?: { size: number; count: number }[] }
     ) {
         const regionCount = regions.length;
         const minSize = options?.min ?? 3;
         const maxSize = options?.max ?? Math.floor(totalCells / regionCount);
 
-        if (mode === "equal") {
-            const each = Math.floor(totalCells / regionCount);
-            regions.forEach(r => (r.targetSize = each));
-        } else if (mode === "randomWeighted") {
-            let remaining = totalCells;
-            regions.forEach((r, i) => {
-                if (i === regionCount - 1) {
-                    r.targetSize = remaining;
-                } else {
-                    const maxForThis = Math.min(maxSize, Math.max(minSize, Math.floor(remaining / 2)));
-                    const size = Math.floor(Math.random() * (maxForThis - minSize + 1)) + minSize;
-                    r.targetSize = size;
+        // Assign regions with exact sizes first
+        let remaining = totalCells;
+        let regionIdx = 0;
+        if (options?.sizes) {
+            for (const { size, count } of options.sizes) {
+                for (let i = 0; i < count && regionIdx < regions.length; i++, regionIdx++) {
+                    regions[regionIdx].targetSize = size;
+                    regions[regionIdx].targetIsHard = true; // <-- mark as hard
                     remaining -= size;
                 }
-            });
-        } else if (mode === "weightedSmall") {
-            // Weighted chance for small regions first
-            let remaining = totalCells;
-            const smallChance = 0.5; // 50% chance for very small regions
-            regions.forEach((r, i) => {
-                if (i === regionCount - 1) {
-                    r.targetSize = remaining;
-                } else {
-                    let size: number;
-                    if (Math.random() < smallChance) {
-                        // Small region
-                        size = Math.floor(Math.random() * minSize) + 1; // 1..minSize
-                    } else {
-                        // Regular random in min..max
-                        const maxForThis = Math.min(maxSize, Math.max(minSize, remaining - (regionCount - i - 1) * minSize));
-                        size = Math.floor(Math.random() * (maxForThis - minSize + 1)) + minSize;
-                    }
-                    r.targetSize = size;
-                    remaining -= size;
-                }
-            });
+            }
+        }
+
+        // Assign remaining regions as before
+        for (; regionIdx < regions.length; regionIdx++) {
+            if (regionIdx === regions.length - 1) {
+                regions[regionIdx].targetSize = remaining;
+            } else {
+                const maxForThis = Math.min(maxSize, Math.max(minSize, Math.floor(remaining / 2)));
+                const size = Math.floor(Math.random() * (maxForThis - minSize + 1)) + minSize;
+                regions[regionIdx].targetSize = size;
+                regions[regionIdx].targetIsHard = false; // <-- mark as soft
+                remaining -= size;
+            }
         }
     },
 
@@ -169,6 +209,10 @@ export const GridUtils = {
     // Grow a single region
     // -------------------
     growRegion(grid: Grid, region: Region): boolean {
+        if (region.targetIsHard && region.coords.length >= (region.targetSize ?? 0)) {
+            return false; // Don't grow hard-target regions beyond their size
+        }
+
         const candidateSet = new Set<string>();
 
         region.coords.forEach(coord => {
@@ -204,37 +248,28 @@ export const GridUtils = {
 
 
     // -------------------
-    // Create regions and grow them until grid is full
+    // Get empty neighbors of a cell
     // -------------------
-    createRegions(grid: Grid, N: number): Grid {
-        //grid = GridUtils.clearGrid(grid);
-        grid = GridUtils.createGrid(grid.size);
+    pickAdjacentEmptyCells(grid: Grid, coord: Coord): Coord[] {
+        const deltas: Coord[] = [
+            [-1, 0], // up
+            [1, 0],  // down
+            [0, -1], // left
+            [0, 1],  // right
+        ];
 
-        // Seed the regions
-        const seeds = GridUtils.pickRandomEmptyCells(grid, N);
-        seeds.forEach((cell, idx) => {
-            const region = createRegion(idx + 1, cell.coords);
-            cell.ownerId = region.id;
-            grid.regions.push(region);
-        });
+        const [row, col] = coord;
+        const empty: Coord[] = [];
 
-        // Assign targets (optional weighting)
-        GridUtils.assignRegionTargets(
-            grid.regions,
-            grid.cells.flat().length,
-            "randomWeighted",
-            { min: 3, max: 4 }
-        );
-
-        // Grow regions until full
-        while (grid.cells.flat().some(c => !c.ownerId)) {
-            GridUtils.growRegions(grid);
+        for (const [dRow, dCol] of deltas) {
+            const r = row + dRow;
+            const c = col + dCol;
+            if (r >= 0 && r < grid.size && c >= 0 && c < grid.size) {
+            const neighbor = grid.cells[r][c];
+            if (!neighbor.ownerId) empty.push([r, c]);
+            }
         }
-
-        // Flag the cells with their border bitmask
-        GridUtils.flagCellBordersBitmask(grid);
-
-        return grid;
+        return empty;
     },
 
 
@@ -487,9 +522,9 @@ solveStarsUniqueness(
         backtrack(idx + 1);
     }
 
-    console.log("Starting star solving...");
+
     backtrack(0);
-    console.log(`Total solutions found: ${solutionCount}`);
+
 
     // Fill the grid with the unique solution or last attempted stars
     grid.cells.forEach(row => row.forEach(cell => cell.value = 0));
