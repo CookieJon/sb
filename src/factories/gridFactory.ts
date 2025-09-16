@@ -85,7 +85,8 @@ export const GridUtils = {
             grid.regions,
             grid.cells.flat().length,
             "weightedSmall",
-            { min: 7, max: 12, sizes: [{ size: 5, count:5 }, { size: 3, count:1 }] }
+            //   { min: 7, max: 12, sizes: [{ size: 5, count:5 }, { size: 3, count:1 }] }  <-- Good settings
+            { min: 3, max: 5, sizes: [{ size: 4, count: 2 }, { size: 5, count: 1 }] }
         );
 
         
