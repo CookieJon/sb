@@ -53,6 +53,8 @@
 
 .grid {
   display: inline-block;
+  
+    flex-direction: column
 }
 
 .row {
@@ -62,15 +64,76 @@
 .cell {
   width: 40px;
   height: 40px;
-  border: 1px solid #888;
+  border: .1px solid #888;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: monospace;
   background: #f8f8f8;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Optional background for eliminated cells */
+.cell.eliminated::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background:black;      /* dark grey */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Draw a star when value===2 */
+.cell.star::after {
+  content: "★";           /* Unicode black star */
+  color: black;            /* star color */
+  font-size: 28px;        /* scales with cell size */
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;   /* clicks pass through to the cell */
 }
 
 
+pre {
+  white-space: pre-wrap;      /* respect line breaks but allow wrapping */
+  word-wrap: break-word;      /* older name, still useful for legacy */
+  overflow-wrap: break-word;  /* modern name */
+  max-width: 100%;            /* don’t overflow parent */
+  box-sizing: border-box;     /* include padding/border in width */
+}
+
+/* Unique solution highlight */
+.grid.solution-count-1 {
+  border: 4px solid green; /* Thicker green border for unique solution */
+}
+
+.grid.solution-count-2 {
+  border: 4px solid orange; /* Thicker orange border for multiple solutions */
+}     
+.grid.solution-count-0 {
+  border: 4px solid red; /* Thicker red border for no solution */
+}
+.grid.solution-count--1 {
+  border: 2px solid black; /* Default border for uncounted */
+}
+
+
+/* Region Border Classes */
+/* Use bitmask: top=1, right=2, bottom=4, left=8 */
+.grid   { border: 2px solid black; }
+.border-none   { border: none; }    
+.border-top    { border-top: 2px solid black; }
+.border-right  { border-right: 2px solid black; }
+.border-bottom { border-bottom: 2px solid black; }
+.border-left   { border-left: 2px solid black; }
 
 /* Region colour classes */
 .region-1 { background-color: #f94144; } /* red */
@@ -85,6 +148,7 @@
 .region-10 { background-color: #f8961e; } /* amber */
 
 
+
 /* Region colour classes - pastel version */
 .region-1 { background-color: #ffd6d6; } /* light pink */
 .region-2 { background-color: #ffe0b3; } /* peach */
@@ -96,3 +160,4 @@
 .region-8 { background-color: #f0d6ff; } /* light purple */
 .region-9 { background-color: #ffd9e6; } /* soft coral */
 .region-10 { background-color: #ffe6cc; } /* soft apricot */
+
