@@ -119,7 +119,7 @@ pre {
   border: 4px solid orange; /* Thicker orange border for multiple solutions */
 }     
 .grid.solution-count-0 {
-  border: 4px solid red; /* Thicker red border for no solution */
+  border: px solid rgb(0, 0, 0); /* Thicker red border for no solution */
 }
 .grid.solution-count--1 {
   border: 2px solid black; /* Default border for uncounted */

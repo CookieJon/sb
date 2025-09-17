@@ -74,7 +74,6 @@ function App() {
       <div className="card">
 
         <div className="app">
-          <h3> Example</h3>
           <div className={`grid solution-count-${grid.solutionCount}`}>
             {grid.cells.map((row, r) => (
               <div key={r} className="row">
@@ -90,21 +89,18 @@ function App() {
           </div>
         </div>
       
-
-      <button onClick={() => setGrid(GridUtils.createRegions(grid, 9))}>MAKE REGIONS</button>
-  
-
-  <button onClick={() => findSolution(grid, setGrid)}>SOLVE</button>
-
-  <button onClick={() => generateUniqueGrid(setGrid)}>GENERATE</button>
-
-      <button onClick={() => setCount((count) => count + 1)}>
-        count is {count}
-      </button>
+            <br />
+<button onClick={() => setGrid(GridUtils.createRegions(grid, 9))}>MAKE REGIONS</button> 
+<button onClick={() => findSolution(grid, setGrid)}>SOLVE</button> 
+<button onClick={() => generateUniqueGrid(setGrid)}>GENERATE</button>
+<br />
+<button onClick={() => setCount((count) => count + 1)}>
+count is {count}
+</button>
 
     </div>
 
-    <pre style={{ background: "#eee", padding: "1em", width: "500px"}}>
+    <pre style={{ display: "none", background: "#eee", padding: "1em", width: "500px"}}>
       {JSON.stringify(grid.cells, null, 0)}
     </pre>
 
