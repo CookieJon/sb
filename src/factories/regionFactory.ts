@@ -12,7 +12,7 @@ export function createRegion(id: number, startingCoord: Coord, targetSize: numbe
   return {
     id,
     coords: [startingCoord],
-    targetSize: undefined,
+    targetSize: targetSize,
     targetIsHard: false // <-- Default to soft target
   }
 }

@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import  { GridUtils, type Grid } from "./factories"
+import { findSolution, generateUniqueGrid } from "./utils/solutionUtils"
 import './App.css'
 import { CellView } from './components/CellView'
 
 function App() {
   const [count, setCount] = useState(0)
 
-  const [grid, setGrid] = useState<Grid>(() => GridUtils.createGrid(9)) // 5x5 grid
+  const [grid, setGrid] = useState<Grid>(() => GridUtils.createGrid(9)) 
 
   // This *is* the onValueChange we pass down
-  const handleValueChange = (row: number, col: number, newValue: 0 | 1 | 2) => {
+  const handleValueChange = (row: number, col: number, newValue: number) => {
     setGrid(grid => {
       const next = GridUtils.cloneGrid(grid);
 
@@ -35,66 +36,14 @@ function App() {
             }
           }
         }
-      }
+      } 
 
       return next;
     })
   }
 
 
-  const findSolution = () => { 
-    const grid2 = GridUtils.cloneGrid(grid);
-    
-    console.log('<hr>');
-    GridUtils.solveStarsUniqueness(grid2, 2, 2);
-    console.log("Solutions found:", grid2.solutionCount);
-    setGrid(grid2)
-  }
 
-  const generateUniqueGrid = () => {
-    let attempts = 0;
-    let uniqueFound = false;
-    let newGrid = GridUtils.createGrid(9);
-    newGrid = GridUtils.createRegions(newGrid, 9);
-  
-  
-    while (attempts < 5000 && !uniqueFound) {
-      attempts++;
-      newGrid = GridUtils.createGrid(9);
-      newGrid = GridUtils.createRegions(newGrid, 9);
-
-      setGrid(newGrid);
-
-        const grid = GridUtils.solveStarsUniqueness(newGrid)
-        const result = grid.solutionCount
-
-
-
-
-        if (result === 1) {
-          uniqueFound = true;
-          
-          console.log(`Unique solution found after ${attempts} attempt(s)!`);
-          break;
-        }
-
-        if (result === 2) {
-          console.log(`2 solutions found after ${attempts} attempt(s). Retrying...`);
-        }
-
-        setGrid(grid);
-
-      }
-
-      if (!uniqueFound) {
-        console.log(`No unique solution found in ${attempts} attempts.`);
-        
-      }
-
-    return
-
-
-    };
 
 
   
@@ -108,7 +57,7 @@ function App() {
           <div className={`grid solution-count-${grid.solutionCount}`}>
             {grid.cells.map((row, r) => (
               <div key={r} className="row">
-                {row.map((cell, c) => (
+                {row.map((cell) => (
                   <CellView 
                     key={cell.coords.join('-')} 
                     cell={cell} 
@@ -123,9 +72,10 @@ function App() {
 
       <button onClick={() => setGrid(GridUtils.createRegions(grid, 9))}>MAKE REGIONS</button>
   
-      <button onClick={findSolution}>SOLVE</button>   
 
-       <button onClick={generateUniqueGrid}>GENERATE</button>   
+  <button onClick={() => findSolution(grid, setGrid)}>SOLVE</button>
+
+  <button onClick={() => generateUniqueGrid(setGrid)}>GENERATE</button>
 
       <button onClick={() => setCount((count) => count + 1)}>
         count is {count}
