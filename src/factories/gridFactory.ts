@@ -49,12 +49,12 @@ export const GridUtils = {
         newGrid.regions = []
         newGrid.solutionCount = -1
         return newGrid
-        },
+    },
 
-        // -------------------
-        // Pick N random empty cells
-        // -------------------
-        pickRandomEmptyCells(grid: Grid, count: number): Cell[] {
+    // -------------------
+    // Pick N random empty cells
+    // -------------------
+    pickRandomEmptyCells(grid: Grid, count: number): Cell[] {
         const allCells = grid.cells.flat();
         const emptyCells = allCells.filter(c => !c.ownerId);
         const picked: Cell[] = [];
@@ -76,7 +76,7 @@ export const GridUtils = {
         // Seed the regions
         const seeds = GridUtils.pickRandomEmptyCells(grid, N);
         seeds.forEach((cell, idx) => {
-            const region = createRegion(idx + 1, cell.coords);
+            const region = createRegion(idx + 1, cell.coord);
             cell.ownerId = region.id;
             grid.regions.push(region);
         });
@@ -85,7 +85,7 @@ export const GridUtils = {
         GridUtils.assignRegionTargets(
             grid.regions,
             grid.cells.flat().length,
-            { min: 4, max: 12, sizes: [{ size: 3, count:1 }, { size: 4, count:2 }, { size: 5, count:1 }] }
+            { min:11, max: 12, sizes: [{ size: 4, count:2 }] }
         );
 
         

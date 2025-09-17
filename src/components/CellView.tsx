@@ -1,32 +1,32 @@
 import type { Cell } from "../factories/cellFactory";
 
 
-
 interface Props {
   cell: Cell;
-  onValueChange: (row: number, col: number, newValue: number) => void;
+  onCellClick: (cell: Cell) => void;
 }
 
-export function CellView({ cell, onValueChange }: Props) {
+export function CellView({ cell, onCellClick }: Props) {
 
     const mask = cell.borders ?? 0
     const classes = ['cell']
 
+    // Add border classes based on bitmask
     if (mask & 1) classes.push('border-top')
     if (mask & 2) classes.push('border-right')
     if (mask & 4) classes.push('border-bottom')
     if (mask & 8) classes.push('border-left')
+      
+    // Add a class for the region
     classes.push(cell.ownerId ? `region-${cell.ownerId}` : '')
-    // Add a class based on the value for styling
-    if (cell.value > 0) classes.push('eliminated');
+
+    // Add class based on value    
+    if (cell.value === 0) classes.push('empty');
+    else if (cell.value > 0) classes.push('eliminated');
     else if (cell.value === -1) classes.push('star');
 
     const handleClick = () => {
-        // const next = cell.value === 0 ? 1 : cell.value === 1 ? 2 : 0;
-
-        const next = cell.value === 0 ? 1 : cell.value > 0 ? -1: 0;
-
-        onValueChange(cell.coords[0], cell.coords[1], next);
+        onCellClick(cell)
     }
 
     return <div 

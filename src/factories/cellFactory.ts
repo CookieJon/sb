@@ -3,12 +3,12 @@
 import type { Coord } from "./gridFactory"
 
 export interface Cell {
-  coords: Coord
+  coord: Coord
   ownerId: number | null
   value: number    // 0 | -1 | 1,2,3...  // 0=undecided, -1=star, 1... eliminated
   borders?: number; // bitmask: top=1, right=2, bottom=4, left=8
 }
 
-export function createCell(coords: Coord): Cell {
-  return { coords, ownerId: null, value: 0}
+export function createCell(coord: Coord): Cell {
+  return { coord, ownerId: null, value: 0}
 }
