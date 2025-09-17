@@ -148,16 +148,27 @@ pre {
 .region-10 { background-color: #f8961e; } /* amber */
 
 
+/* Region colour classes - Klimt palette */
+.region-1 { background-color: #d4af37; } /* gold */
+.region-2 { background-color: #a5372b; } /* deep red */
+.region-3 { background-color: #3b5ba9; } /* rich blue */
+.region-4 { background-color: #4e7c59; } /* lush green */
+.region-5 { background-color: #e5c07b; } /* warm ochre */
+.region-6 { background-color: #c9b6be; } /* muted mauve */
+.region-7 { background-color: #f6e7d7; } /* pale cream */
+.region-8 { background-color: #7a5c61; } /* antique rose */
+.region-9 { background-color: #bfae48; } /* antique gold */
+.region-10 { background-color: #6e4b1f; } /* bronze brown */
 
-/* Region colour classes - pastel version */
-.region-1 { background-color: #ffd6d6; } /* light pink */
-.region-2 { background-color: #ffe0b3; } /* peach */
-.region-3 { background-color: #fff2b3; } /* pale yellow */
-.region-4 { background-color: #d4f4dd; } /* mint green */
-.region-5 { background-color: #b3e5e5; } /* light teal */
-.region-6 { background-color: #cce0ff; } /* light blue */
-.region-7 { background-color: #e0ccff; } /* lavender */
-.region-8 { background-color: #f0d6ff; } /* light purple */
-.region-9 { background-color: #ffd9e6; } /* soft coral */
-.region-10 { background-color: #ffe6cc; } /* soft apricot */
 
+/* Region colour classes - Muted Greys & Tones */
+.region-1 { background-color: #e0e0e0; } /* light grey */
+.region-2 { background-color: #bdbdbd; } /* medium grey */
+.region-3 { background-color: #9e9e9e; } /* muted grey */
+.region-4 { background-color: #b0a8b9; } /* muted lavender-grey */
+.region-5 { background-color: #cfd8dc; } /* blue-grey */
+.region-6 { background-color: #b8c6c8; } /* muted teal-grey */
+.region-7 { background-color: #d7ccc8; } /* taupe */
+.region-8 { background-color: #c5b9a5; } /* muted sand */
+.region-9 { background-color: #a7b6a7; } /* muted sage */
+.region-10 { background-color: #b0b0a8; } /* stone grey */

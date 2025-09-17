@@ -3,10 +3,11 @@ import { createCell, type Cell } from "./cellFactory"
 import { createRegion, type Region } from "./regionFactory"
 
 export interface Grid {
-  size: number
-  cells: Cell[][]
-  regions: Region[]
-  solutionCount: -1 | 0 | 1 | 2 // -1 = uncounted, 0 = no solution, 1 = unique, 2 = multiple
+    size: number
+    cells: Cell[][]
+    regions: Region[]
+    solutionCount: -1 | 0 | 1 | 2 // -1 = uncounted, 0 = no solution, 1 = unique, 2 = multiple
+    solution: Coord[] // array of coords denoting star positions
 }
 export type Coord = [number, number];
 
@@ -18,7 +19,7 @@ export const GridUtils = {
         const cells: Cell[][] = Array.from({ length: size }, (_, row) =>
             Array.from({ length: size }, (_, col) => createCell([row, col]))
         );
-        return { size, cells, regions: [], solutionCount: -1 };
+        return { size, cells, regions: [], solutionCount: -1, solution: [] };
     },
 
     // -------------------
@@ -84,8 +85,7 @@ export const GridUtils = {
         GridUtils.assignRegionTargets(
             grid.regions,
             grid.cells.flat().length,
-            "weightedSmall",
-            { min: 7, max: 12, sizes: [{ size: 5, count:5 }, { size: 3, count:1 }] }
+            { min: 10, max: 12, sizes: [{ size: 4, count:2 }, { size: 15, count:1 }] }
         );
 
         
@@ -93,9 +93,7 @@ export const GridUtils = {
         const hardTotal = grid.regions
             .filter(r => r.targetIsHard)
             .reduce((sum, r) => sum + (r.targetSize ?? 0), 0);
-        const softTotal = grid.regions
-            .filter(r => !r.targetIsHard)
-            .reduce((sum, r) => sum + (r.targetSize ?? 0), 0);
+
         const gridTotal = grid.cells.flat().length;
         if (hardTotal > gridTotal) {
             // Too many hard targets, treat all as soft
@@ -147,7 +145,6 @@ export const GridUtils = {
     assignRegionTargets(
         regions: Region[],
         totalCells: number,
-        mode: "equal" | "randomWeighted" | "weightedSmall",
         options?: { min?: number; max?: number; sizes?: { size: number; count: number }[] }
     ) {
         const regionCount = regions.length;
@@ -360,182 +357,6 @@ export const GridUtils = {
 
 
 
-    isStarPlacementValid(grid: Grid, r: number, c: number): boolean {
-        const cell = grid.cells[r][c];
-        if (cell.value === 2) return false; // already a star
-        if (cell.value === 1) return false; // eliminated
-
-        const N = 2; // stars per row/col/region
-
-        // Row check
-        const rowStars = grid.cells[r].filter(c => c.value === 2).length;
-        if (rowStars >= N) return false;
-
-        // Column check
-        const colStars = grid.cells.map(row => row[c].value).filter(v => v === 2).length;
-        if (colStars >= N) return false;
-
-        // Region check
-        const region = grid.regions.find(rg => rg.id === cell.ownerId);
-        const regionStars = region?.coords.map(([rr, cc]) => grid.cells[rr][cc].value)
-            .filter(v => v === 2).length ?? 0;
-        if (regionStars >= N) return false;
-
-        // Adjacent / diagonal check
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-                if (dr === 0 && dc === 0) continue;
-                const nr = r + dr;
-                const nc = c + dc;
-                if (nr >= 0 && nr < grid.size && nc >= 0 && nc < grid.size) {
-                    if (grid.cells[nr][nc].value === 2) return false;
-                }
-            }
-        }
-
-        return true;
-    },
-
-
-/**
- * Returns:
- * 0 = no solution
- * 1 = unique solution
- * 2 = multiple solutions
- * 
- * Fills the grid with stars if unique solution,
- * or with the last attempted stars if no solution.
- */
-solveStarsUniqueness(
-    grid: Grid,
-    starsPerRowCol = 2,
-    starsPerRegion = 2
-): Grid {
-    const regionSizes = new Map<number, number>();
-    grid.regions.forEach(r => regionSizes.set(r.id, r.coords.length));
-
-    const coords: Coord[] = grid.cells
-        .flatMap((row, r) => row.map((_, c) => [r, c] as Coord))
-        .sort((a, b) =>
-            (regionSizes.get(grid.cells[a[0]][a[1]].ownerId!) ?? 0) -
-            (regionSizes.get(grid.cells[b[0]][b[1]].ownerId!) ?? 0)
-        );
-
-    const rowCounts = Array(grid.size).fill(0);
-    const colCounts = Array(grid.size).fill(0);
-    const regionCounts = new Map<number, number>();
-
-    let solutionCount = 0;
-    let lastAttemptStars: Coord[] = [];
-    let uniqueStars: Coord[] = [];
-    const currentStars: Coord[] = [];
-
-    function remainingStarsPossible(idx: number): boolean {
-        // Check rows
-        for (let r = 0; r < grid.size; r++) {
-            const need = starsPerRowCol - rowCounts[r];
-            const left = coords.slice(idx).filter(([rr, cc]) => rr === r && grid.cells[rr][cc].value === 0).length;
-            if (left < need) return false;
-        }
-        // Check columns
-        for (let c = 0; c < grid.size; c++) {
-            const need = starsPerRowCol - colCounts[c];
-            const left = coords.slice(idx).filter(([rr, cc]) => cc === c && grid.cells[rr][cc].value === 0).length;
-            if (left < need) return false;
-        }
-        // Check regions
-        for (const region of grid.regions) {
-            const need = starsPerRegion - (regionCounts.get(region.id) ?? 0);
-            const left = region.coords.filter(([rr, cc]) =>
-                grid.cells[rr][cc].value === 0 &&
-                coords.slice(idx).some(([x, y]) => x === rr && y === cc)
-            ).length;
-            if (left < need) return false;
-        }
-        return true;
-    }
-
-    function backtrack(idx: number): void {
-        if (solutionCount > 1) return;
-
-        if (idx === coords.length) {
-            solutionCount++;
-            console.log(`Solution #${solutionCount} found, stars:`, currentStars);
-            if (solutionCount === 1) uniqueStars = [...currentStars];
-            return;
-        }
-
-        if (!remainingStarsPossible(idx)) {
-            lastAttemptStars = [...currentStars];
-            return;
-        }
-
-        const [r, c] = coords[idx];
-        const cell = grid.cells[r][c];
-        if (cell.value !== 0) {
-            backtrack(idx + 1);
-            return;
-        }
-
-        const regionId = cell.ownerId!;
-
-        // Try placing a star
-        if (
-            rowCounts[r] < starsPerRowCol &&
-            colCounts[c] < starsPerRowCol &&
-            (regionCounts.get(regionId) ?? 0) < starsPerRegion &&
-            GridUtils.isStarPlacementValid(grid, r, c)
-        ) {
-            // Place star
-            cell.value = 2;
-            rowCounts[r]++; colCounts[c]++;
-            regionCounts.set(regionId, (regionCounts.get(regionId) ?? 0) + 1);
-            currentStars.push([r, c]);
-
-            // Mark adjacent cells as eliminated
-            const eliminated: Coord[] = [];
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    const nr = r + dr;
-                    const nc = c + dc;
-                    if (nr >= 0 && nr < grid.size && nc >= 0 && nc < grid.size) {
-                        const nCell = grid.cells[nr][nc];
-                        if (nCell.value === 0) {
-                            nCell.value = 1;
-                            eliminated.push([nr, nc]);
-                        }
-                    }
-                }
-            }
-
-            backtrack(idx + 1);
-
-            // Undo
-            cell.value = 0;
-            rowCounts[r]--; colCounts[c]--;
-            regionCounts.set(regionId, (regionCounts.get(regionId) ?? 0) - 1);
-            currentStars.pop();
-            eliminated.forEach(([er, ec]) => grid.cells[er][ec].value = 0);
-        }
-
-        // Try skipping this cell
-        backtrack(idx + 1);
-    }
-
-
-    backtrack(0);
-
-
-    // Fill the grid with the unique solution or last attempted stars
-    grid.cells.forEach(row => row.forEach(cell => cell.value = 0));
-    const starsToFill = solutionCount === 1 ? uniqueStars : lastAttemptStars;
-    starsToFill.forEach(([r, c]) => grid.cells[r][c].value = 2);
-
-    grid.solutionCount = solutionCount === 0 ? 0 : solutionCount === 1 ? 1 : 2;
-
-
-    return grid;
-}
 
 
 
