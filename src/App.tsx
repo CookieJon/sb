@@ -7,10 +7,10 @@ import { CellView } from './components/CellView'
 function App() {
   const [count, setCount] = useState(0)
 
-  const [grid, setGrid] = useState<Grid>(() => GridUtils.createGrid(9)) // 5x5 grid
+  const [grid, setGrid] = useState<Grid>(() => GridUtils.createGrid(9)) 
 
   // This *is* the onValueChange we pass down
-  const handleValueChange = (row: number, col: number, newValue: 0 | 1 | 2) => {
+  const handleValueChange = (row: number, col: number, newValue: number) => {
     setGrid(grid => {
       const next = GridUtils.cloneGrid(grid);
 
@@ -36,7 +36,7 @@ function App() {
             }
           }
         }
-      }
+      } 
 
       return next;
     })

@@ -126,14 +126,7 @@ pre {
 }
 
 
-/* Region Border Classes */
-/* Use bitmask: top=1, right=2, bottom=4, left=8 */
-.grid   { border: 2px solid black; }
-.border-none   { border: none; }    
-.border-top    { border-top: 2px solid black; }
-.border-right  { border-right: 2px solid black; }
-.border-bottom { border-bottom: 2px solid black; }
-.border-left   { border-left: 2px solid black; }
+
 
 
 /* Region colour classes - Klimt palette */
@@ -202,3 +195,11 @@ pre {
 .region-9 { background-color: #ffe5b4; } /* pastel coral */
 .region-10 { background-color: #fff1a8; } /* pastel amber */
 
+/* Region Border Classes */
+/* Use bitmask: top=1, right=2, bottom=4, left=8 */
+.grid   { border: 2px solid black; }
+.border-none   { border: none; }    
+.border-top    { border-top: 2px solid black !important;}
+.border-right  { border-right: 2px solid black !important; }
+.border-bottom { border-bottom: 2px solid black !important; }
+.border-left   { border-left: 2px solid black !important; }

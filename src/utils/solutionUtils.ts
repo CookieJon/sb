@@ -1,23 +1,26 @@
 // --- Star placement validity ---
+
+import { GridUtils, type Grid } from "../factories";
+
 export function isStarPlacementValid(grid: Grid, r: number, c: number): boolean {
   const cell = grid.cells[r][c];
-  if (cell.value === 2) return false; // already a star
-  if (cell.value === 1) return false; // eliminated
+  if (cell.value === -1) return false; // already a star
+  if (cell.value > 0) return false; // eliminated
 
   const N = 2; // stars per row/col/region
 
   // Row check
-  const rowStars = grid.cells[r].filter(c => c.value === 2).length;
+  const rowStars = grid.cells[r].filter(c => c.value === -1).length;
   if (rowStars >= N) return false;
 
   // Column check
-  const colStars = grid.cells.map(row => row[c].value).filter(v => v === 2).length;
+  const colStars = grid.cells.map(row => row[c].value).filter(v => v === -1).length;
   if (colStars >= N) return false;
 
   // Region check
   const region = grid.regions.find(rg => rg.id === cell.ownerId);
   const regionStars = region?.coords.map(([rr, cc]) => grid.cells[rr][cc].value)
-    .filter(v => v === 2).length ?? 0;
+    .filter(v => v === -1).length ?? 0;
   if (regionStars >= N) return false;
 
   // Adjacent / diagonal check
@@ -27,7 +30,7 @@ export function isStarPlacementValid(grid: Grid, r: number, c: number): boolean 
       const nr = r + dr;
       const nc = c + dc;
       if (nr >= 0 && nr < grid.size && nc >= 0 && nc < grid.size) {
-        if (grid.cells[nr][nc].value === 2) return false;
+        if (grid.cells[nr][nc].value === -1) return false;
       }
     }
   }
@@ -125,7 +128,7 @@ export function solveStarsUniqueness(
       isStarPlacementValid(grid, r, c)
     ) {
       // Place star
-      cell.value = 2;
+      cell.value = -1;
       rowCounts[r]++; colCounts[c]++;
       regionCounts.set(regionId, (regionCounts.get(regionId) ?? 0) + 1);
       currentStars.push([r, c]);
@@ -165,13 +168,12 @@ export function solveStarsUniqueness(
   // Fill the grid with the unique solution or last attempted stars
   grid.cells.forEach(row => row.forEach(cell => cell.value = 0));
   const starsToFill = solutionCount === 1 ? uniqueStars : lastAttemptStars;
-  starsToFill.forEach(([r, c]) => grid.cells[r][c].value = 2);
+  starsToFill.forEach(([r, c]) => grid.cells[r][c].value = -1);
 
   grid.solutionCount = solutionCount === 0 ? 0 : solutionCount === 1 ? 1 : 2;
 
   return grid;
 }
-import { GridUtils, type Grid } from "../factories";
 
 
 export function findSolution(grid: Grid, setGrid: (g: Grid) => void) {

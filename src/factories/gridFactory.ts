@@ -85,7 +85,7 @@ export const GridUtils = {
         GridUtils.assignRegionTargets(
             grid.regions,
             grid.cells.flat().length,
-            { min: 10, max: 12, sizes: [{ size: 4, count:2 }, { size: 15, count:1 }] }
+            { min: 4, max: 12, sizes: [{ size: 3, count:1 }, { size: 4, count:2 }, { size: 5, count:1 }] }
         );
 
         
