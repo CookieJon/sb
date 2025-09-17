@@ -135,18 +135,6 @@ pre {
 .border-bottom { border-bottom: 2px solid black; }
 .border-left   { border-left: 2px solid black; }
 
-/* Region colour classes */
-.region-1 { background-color: #f94144; } /* red */
-.region-2 { background-color: #f3722c; } /* orange */
-.region-3 { background-color: #f9c74f; } /* yellow */
-.region-4 { background-color: #90be6d; } /* green */
-.region-5 { background-color: #43aa8b; } /* teal */
-.region-6 { background-color: #577590; } /* blue */
-.region-7 { background-color: #4d908e; } /* cyan */
-.region-8 { background-color: #9d4edd; } /* purple */
-.region-9 { background-color: #f9844a; } /* coral/orange */
-.region-10 { background-color: #f8961e; } /* amber */
-
 
 /* Region colour classes - Klimt palette */
 .region-1 { background-color: #d4af37; } /* gold */
@@ -172,3 +160,45 @@ pre {
 .region-8 { background-color: #c5b9a5; } /* muted sand */
 .region-9 { background-color: #a7b6a7; } /* muted sage */
 .region-10 { background-color: #b0b0a8; } /* stone grey */
+
+
+
+/* Region colour classes */
+.region-1 { background-color: #f94144; } /* red */
+.region-2 { background-color: #f3722c; } /* orange */
+.region-3 { background-color: #f9c74f; } /* yellow */
+.region-4 { background-color: #90be6d; } /* green */
+.region-5 { background-color: #43aa8b; } /* teal */
+.region-6 { background-color: #577590; } /* blue */
+.region-7 { background-color: #4d908e; } /* cyan */
+.region-8 { background-color: #9d4edd; } /* purple */
+.region-9 { background-color: #f9844a; } /* coral/orange */
+.region-10 { background-color: #f8961e; } /* amber */
+
+
+
+/* Region colour classes - pastel palette with subtle borders */
+.region-1 { background-color: #ffadad; border: 2px solid #e58b8b; } /* pastel red */
+.region-2 { background-color: #ffd6a5; border: 2px solid #e5b37b; } /* pastel orange */
+.region-3 { background-color: #fdffb6; border: 2px solid #e5e58b; } /* pastel yellow */
+.region-4 { background-color: #caffbf; border: 2px solid #8be58b; } /* pastel green */
+.region-5 { background-color: #9bf6ff; border: 2px solid #68cfe5; } /* pastel teal/cyan */
+.region-6 { background-color: #a0c4ff; border: 2px solid #6b8be5; } /* pastel blue */
+.region-7 { background-color: #bdb2ff; border: 2px solid #8b79e5; } /* pastel purple */
+.region-8 { background-color: #ffc6ff; border: 2px solid #e58be5; } /* pastel pink/purple */
+.region-9 { background-color: #ffe5b4; border: 2px solid #e5c68b; } /* pastel coral */
+.region-10 { background-color: #fff1a8; border: 2px solid #e5e08b; } /* pastel amber */
+
+
+/* Region colour classes - pastel palette */
+.region-1 { background-color: #ffadad; } /* pastel red */
+.region-2 { background-color: #ffd6a5; } /* pastel orange */
+.region-3 { background-color: #fdffb6; } /* pastel yellow */
+.region-4 { background-color: #caffbf; } /* pastel green */
+.region-5 { background-color: #9bf6ff; } /* pastel teal/cyan */
+.region-6 { background-color: #a0c4ff; } /* pastel blue */
+.region-7 { background-color: #bdb2ff; } /* pastel purple */
+.region-8 { background-color: #ffc6ff; } /* pastel pink/purple */
+.region-9 { background-color: #ffe5b4; } /* pastel coral */
+.region-10 { background-color: #fff1a8; } /* pastel amber */
+
