@@ -1,70 +1,13 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-
-
-
 
 /* src/App.css */
-.app {
-  text-align: center;
-  margin-top: 20px;
-}
 
-.grid {
-  display: inline-block;
-  
-    flex-direction: column
-}
 
-.row {
-  display: flex;
-}
 
 .cell {
-  width: 40px;
-  height: 40px;
-  border: .1px solid #888;
+  width:100%;
+  height:100%;
+  box-sizing: border-box;    /* keep borders inside the cell size */
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,32 +17,17 @@
   position: relative;
 }
 
-/* Optional background for eliminated cells */
-.cell.eliminated::after {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background:black;      /* dark grey */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
+.cell span {
+    pointer-events: none;   /* clicks pass through to the cell */
 }
 
-/* Draw a star when value===2 */
-.cell.star::after {
-  content: "★";           /* Unicode black star */
-  color: black;            /* star color */
-  font-size: 28px;        /* scales with cell size */
-
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;   /* clicks pass through to the cell */
+.cell.invalid {
+  /* Invalid highlight: overlay with semi-transparent red */
+  box-shadow: inset 0 0 0 18px rgba(255, 0, 0, 0.5);
+  /* Or use border if you prefer */
+  /* border: 2px solid red; */
 }
+
 
 
 pre {
@@ -124,7 +52,6 @@ pre {
 .grid.solution-count--1 {
   border: 2px solid black; /* Default border for uncounted */
 }
-
 
 
 
@@ -169,18 +96,18 @@ pre {
 .region-10 { background-color: #f8961e; } /* amber */
 
 
-
 /* Region colour classes - pastel palette with subtle borders */
-.region-1 { background-color: #ffadad; border: 2px solid #e58b8b; } /* pastel red */
-.region-2 { background-color: #ffd6a5; border: 2px solid #e5b37b; } /* pastel orange */
-.region-3 { background-color: #fdffb6; border: 2px solid #e5e58b; } /* pastel yellow */
-.region-4 { background-color: #caffbf; border: 2px solid #8be58b; } /* pastel green */
-.region-5 { background-color: #9bf6ff; border: 2px solid #68cfe5; } /* pastel teal/cyan */
-.region-6 { background-color: #a0c4ff; border: 2px solid #6b8be5; } /* pastel blue */
-.region-7 { background-color: #bdb2ff; border: 2px solid #8b79e5; } /* pastel purple */
-.region-8 { background-color: #ffc6ff; border: 2px solid #e58be5; } /* pastel pink/purple */
-.region-9 { background-color: #ffe5b4; border: 2px solid #e5c68b; } /* pastel coral */
-.region-10 { background-color: #fff1a8; border: 2px solid #e5e08b; } /* pastel amber */
+
+.region-1 { background-color: #ffadad; border: 1px solid #e58b8b; } /* pastel red */
+.region-2 { background-color: #ffd6a5; border: 1px solid #e5b37b; } /* pastel orange */
+.region-3 { background-color: #fdffb6; border: 1px solid #e5e58b; } /* pastel yellow */
+.region-4 { background-color: #caffbf; border: 1px solid #8be58b; } /* pastel green */
+.region-5 { background-color: #9bf6ff; border: 1px solid #68cfe5; } /* pastel teal/cyan */
+.region-6 { background-color: #a0c4ff; border: 1px solid #6b8be5; } /* pastel blue */
+.region-7 { background-color: #bdb2ff; border: 1px solid #8b79e5; } /* pastel purple */
+.region-8 { background-color: #ffc6ff; border: 1px solid #e58be5; } /* pastel pink/purple */
+.region-9 { background-color: #ffe5b4; border: 1px solid #e5c68b; } /* pastel coral */
+.region-10 { background-color: #fff1a8; border: 1px solid #e5e08b; } /* pastel amber */
 
 
 /* Region colour classes - pastel palette */
@@ -195,11 +122,109 @@ pre {
 .region-9 { background-color: #ffe5b4; } /* pastel coral */
 .region-10 { background-color: #fff1a8; } /* pastel amber */
 
-/* Region Border Classes */
-/* Use bitmask: top=1, right=2, bottom=4, left=8 */
-.grid   { border: 2px solid black; }
-.border-none   { border: none; }    
-.border-top    { border-top: 2px solid black !important;}
-.border-right  { border-right: 2px solid black !important; }
-.border-bottom { border-bottom: 2px solid black !important; }
-.border-left   { border-left: 2px solid black !important; }
+
+
+/* ----------------------------------------------- */
+
+
+/* Base grid borders stay as fallback */
+.grid { border: clamp(0.5px, 0.3vw, 2px) solid black !important;}
+
+/* Normal region borders
+.border-none   { border: none; }
+.border-top    { border-top:2px solid black !important; }
+.border-right  { border-right:2px solid black !important; }
+.border-bottom { border-bottom:2px solid black !important; }
+.border-left   { border-left:2px solid black !important; }
+*/
+
+.border-top    { border-top: clamp(0.5px, 0.3vw, 2px) solid black !important; }
+.border-right  { border-right: clamp(0.5px, 0.3vw, 2px) solid black !important; }
+.border-bottom { border-bottom: clamp(0.5px, 0.3vw, 2px) solid black !important; }
+.border-left   { border-left: clamp(0.5px, 0.3vw, 2px) solid black !important; }
+
+
+/* Star */
+.cell.star::after {
+  content: "★";           /* Unicode black star */
+  color: black;            /* star color */
+  font-size: 28px;        /* scales with cell size */
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;   /* clicks pass through to the cell */
+}
+
+/* Star Hint - bright green star with white outline */
+.cell.hint-star::after {
+  content: "★";
+  color: #2db865;               /* bright green fill */
+    color: #e60023;   /* bright red */
+  font-size: 36px;
+ 
+  position: absolute;
+  top: 58%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+
+ 
+}
+
+
+/* Eliminated */
+.cell.eliminated::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background:black;      /* dark grey */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Eliminated Hint */
+.cell.hint-eliminated::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;           /* diameter of the circle */
+  height: 16px;
+  background: #e60023;   /* bright red */
+  border-radius: 50%;     /* makes it a circle */
+  pointer-events: none;   /* clicks pass through */
+  transform: translate(-50%, -50%);
+}
+
+
+
+
+/* Hint Group 1: rich amber-gold */
+.cell.hint-group-1 {
+  background-color:  rgba(21, 255, 103, 1);
+  border-color: rgb(20, 230, 93);
+}
+
+/* Hint Group 2: electric teal/blue */
+.cell.hint-group-2 {
+  background: rgba(0, 190, 210, 0.55);
+  box-shadow: outset   0 0 10px rgba(27, 30, 30, 0.9),
+              0 0 6px rgba(0,0,0,0.3);
+}
+
+/* Optional: if you want a default red for “border-none” cells inside a group */
+.hint-group-1.border-none,
+.hint-group-2.border-none {
+  border: none !important;
+}
+
+
+
+
+
+
